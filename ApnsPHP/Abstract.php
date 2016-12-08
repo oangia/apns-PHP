@@ -333,14 +333,9 @@ abstract class ApnsPHP_Abstract
 			try {
 				$bConnected = $this->_connect();
 			} catch (ApnsPHP_Exception $e) {
-				$this->_log('ERROR: ' . $e->getMessage());
 				if ($nRetry >= $this->_nConnectRetryTimes) {
 					throw $e;
 				} else {
-					$this->_log(
-						"INFO: Retry to connect (" . ($nRetry+1) .
-						"/{$this->_nConnectRetryTimes})..."
-					);
 					usleep($this->_nConnectRetryInterval);
 				}
 			}
@@ -356,7 +351,6 @@ abstract class ApnsPHP_Abstract
 	public function disconnect()
 	{
 		if (is_resource($this->_hSocket)) {
-			$this->_log('INFO: Disconnected.');
 			return fclose($this->_hSocket);
 		}
 		return false;
@@ -372,8 +366,6 @@ abstract class ApnsPHP_Abstract
 	{
 		$sURL = $this->_aServiceURLs[$this->_nEnvironment];
 		unset($aURLs);
-
-		$this->_log("INFO: Trying {$sURL}...");
 
 		/**
 		 * @see http://php.net/manual/en/context.ssl.php
@@ -401,21 +393,6 @@ abstract class ApnsPHP_Abstract
 		stream_set_blocking($this->_hSocket, 0);
 		stream_set_write_buffer($this->_hSocket, 0);
 
-		$this->_log("INFO: Connected to {$sURL}.");
-
 		return true;
-	}
-
-	/**
-	 * Logs a message through the Logger.
-	 *
-	 * @param  $sMessage @type string The message.
-	 */
-	protected function _log($sMessage)
-	{
-		if (!isset($this->_logger)) {
-			$this->_logger = new ApnsPHP_Log_Embedded();
-		}
-		$this->_logger->log($sMessage);
 	}
 }
